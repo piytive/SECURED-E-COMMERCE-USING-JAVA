@@ -1,0 +1,73 @@
+================== shopclues-connection.txt ==================
+
+# Connecting Frontend, Backend, and GUI for ShopClues Clone
+
+## 1. backendConnection.js (common for frontend & GUI)
+
+const API_BASE = 'http://localhost:5000/api';
+
+// Auth APIs
+async function registerUser(name, email, password) {
+    const res = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+    });
+    return await res.json();
+}
+
+async function loginUser(email, password) {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+    });
+    return await res.json();
+}
+
+// Product APIs
+async function getProducts() {
+    const res = await fetch(`${API_BASE}/products`);
+    return await res.json();
+}
+
+async function getProductById(id) {
+    const res = await fetch(`${API_BASE}/products/${id}`);
+    return await res.json();
+}
+
+async function createProduct(product, token) {
+    const res = await fetch(`${API_BASE}/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(product)
+    });
+    return await res.json();
+}
+
+// Order APIs
+async function createOrder(products, totalAmount, token) {
+    const res = await fetch(`${API_BASE}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ products, totalAmount })
+    });
+    return await res.json();
+}
+
+async function getUserOrders(token) {
+    const res = await fetch(`${API_BASE}/orders/myorders`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return await res.json();
+}
+
+// GUI admin APIs (fetch all users)
+async function getAllUsers(token) {
+    const res = await fetch(`${API_BASE}/auth/users`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    return await res.json();
+}
+
+================== END OF FILE ==================

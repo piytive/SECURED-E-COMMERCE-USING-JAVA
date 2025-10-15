@@ -1,0 +1,266 @@
+================== shopclues-frontend.txt ==================
+
+# ShopClues Frontend Complete Code
+
+## 1. index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopClues Clone</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>ShopClues Clone</h1>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="cart.html">Cart</a>
+            <a href="login.html">Login</a>
+            <a href="register.html">Register</a>
+        </nav>
+    </header>
+
+    <main>
+        <section id="products">
+            <!-- Products will be dynamically added here -->
+        </section>
+    </main>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
+
+## 2. login.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ShopClues Clone</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <h2>Login</h2>
+    <form id="loginForm">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+    <script src="js/login.js"></script>
+</body>
+</html>
+
+## 3. register.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - ShopClues Clone</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <h2>Register</h2>
+    <form id="registerForm">
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button type="submit">Register</button>
+    </form>
+    <script src="js/register.js"></script>
+</body>
+</html>
+
+## 4. cart.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart - ShopClues Clone</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <h2>Your Cart</h2>
+    <section id="cartItems">
+        <!-- Cart items will be dynamically added -->
+    </section>
+    <button id="checkoutBtn">Checkout</button>
+    <script src="js/cart.js"></script>
+</body>
+</html>
+
+## 5. css/style.css
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+header {
+    background-color: #ff6f61;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+nav a {
+    color: white;
+    margin: 0 15px;
+    text-decoration: none;
+    font-weight: bold;
+}
+#products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 20px;
+}
+.product-card {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px;
+    width: 200px;
+    text-align: center;
+}
+.product-card img {
+    width: 100%;
+    height: auto;
+}
+form {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    margin: 20px auto;
+}
+form input, form button {
+    margin: 10px 0;
+    padding: 10px;
+    font-size: 16px;
+}
+
+## 6. js/main.js
+const productContainer = document.getElementById('products');
+
+async function fetchProducts() {
+    const res = await fetch('http://localhost:5000/api/products');
+    const products = await res.json();
+
+    products.forEach(product => {
+        const div = document.createElement('div');
+        div.className = 'product-card';
+        div.innerHTML = `
+            <img src="${product.image || 'https://via.placeholder.com/150'}" alt="${product.name}">
+            <h3>${product.name}</h3>
+            <p>Price: ₹${product.price}</p>
+            <button onclick="addToCart('${product._id}')">Add to Cart</button>
+        `;
+        productContainer.appendChild(div);
+    });
+}
+
+function addToCart(productId) {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    cart.push(productId);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    alert('Product added to cart!');
+}
+
+fetchProducts();
+
+## 7. js/login.js
+const loginForm = document.getElementById('loginForm');
+loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+        localStorage.setItem('token', data.token);
+        alert('Login successful!');
+        window.location.href = 'index.html';
+    } else {
+        alert(data.message);
+    }
+});
+
+## 8. js/register.js
+const registerForm = document.getElementById('registerForm');
+registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('name').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    const res = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+        alert('Registration successful! Please login.');
+        window.location.href = 'login.html';
+    } else {
+        alert(data.message);
+    }
+});
+
+## 9. js/cart.js
+const cartItemsContainer = document.getElementById('cartItems');
+const checkoutBtn = document.getElementById('checkoutBtn');
+
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+async function displayCart() {
+    cartItemsContainer.innerHTML = '';
+    for (const productId of cart) {
+        const res = await fetch(`http://localhost:5000/api/products/${productId}`);
+        const product = await res.json();
+        const div = document.createElement('div');
+        div.className = 'product-card';
+        div.innerHTML = `<h3>${product.name}</h3><p>Price: ₹${product.price}</p>`;
+        cartItemsContainer.appendChild(div);
+    }
+}
+
+checkoutBtn.addEventListener('click', async () => {
+    const token = localStorage.getItem('token');
+    if (!token) { alert('Please login to checkout'); return; }
+
+    let totalAmount = 0;
+    const products = [];
+    for (const productId of cart) {
+        const res = await fetch(`http://localhost:5000/api/products/${productId}`);
+        const product = await res.json();
+        totalAmount += product.price;
+        products.push({ product: product._id, quantity: 1 });
+    }
+
+    const res = await fetch('http://localhost:5000/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ products, totalAmount })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+        alert('Order placed successfully!');
+        localStorage.removeItem('cart');
+        window.location.href = 'index.html';
+    } else {
+        alert(data.message);
+    }
+});
+
+displayCart();
+
+================== END OF FILE ==================

@@ -1,0 +1,118 @@
+================== shopclues-gui.txt ==================
+
+# ShopClues GUI Code (for Admin Dashboard or Desktop App)
+
+## 1. gui.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopClues Admin GUI</title>
+    <link rel="stylesheet" href="css/gui-style.css">
+</head>
+<body>
+    <header>
+        <h1>ShopClues Admin Dashboard</h1>
+    </header>
+    <nav>
+        <button onclick="showProducts()">Products</button>
+        <button onclick="showOrders()">Orders</button>
+        <button onclick="showUsers()">Users</button>
+    </nav>
+    <main>
+        <section id="content">
+            <!-- Dynamic content will be displayed here -->
+        </section>
+    </main>
+    <script src="js/gui.js"></script>
+</body>
+</html>
+
+## 2. css/gui-style.css
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+header {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    text-align: center;
+}
+nav {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
+nav button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+#content {
+    margin: 20px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+table, th, td {
+    border: 1px solid #ddd;
+}
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+th {
+    background-color: #f4f4f4;
+}
+
+## 3. js/gui.js
+const content = document.getElementById('content');
+
+async function showProducts() {
+    const res = await fetch('http://localhost:5000/api/products');
+    const products = await res.json();
+    let html = '<h2>Products</h2><table><tr><th>Name</th><th>Price</th><th>Stock</th></tr>';
+    products.forEach(p => {
+        html += `<tr><td>${p.name}</td><td>₹${p.price}</td><td>${p.stock}</td></tr>`;
+    });
+    html += '</table>';
+    content.innerHTML = html;
+}
+
+async function showOrders() {
+    const token = localStorage.getItem('token');
+    if (!token) { alert('Please login as admin'); return; }
+    const res = await fetch('http://localhost:5000/api/orders', {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const orders = await res.json();
+    let html = '<h2>Orders</h2><table><tr><th>User</th><th>Products</th><th>Total</th><th>Status</th></tr>';
+    orders.forEach(o => {
+        const productList = o.products.map(p => `${p.product.name} (x${p.quantity})`).join(', ');
+        html += `<tr><td>${o.user.name}</td><td>${productList}</td><td>₹${o.totalAmount}</td><td>${o.status}</td></tr>`;
+    });
+    html += '</table>';
+    content.innerHTML = html;
+}
+
+async function showUsers() {
+    const token = localStorage.getItem('token');
+    if (!token) { alert('Please login as admin'); return; }
+    const res = await fetch('http://localhost:5000/api/auth/users', {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const users = await res.json();
+    let html = '<h2>Users</h2><table><tr><th>Name</th><th>Email</th></tr>';
+    users.forEach(u => {
+        html += `<tr><td>${u.name}</td><td>${u.email}</td></tr>`;
+    });
+    html += '</table>';
+    content.innerHTML = html;
+}
+
+================== END OF FILE ==================
